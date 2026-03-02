@@ -1,86 +1,801 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Time With Kids Calculator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rooted in Time Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #faf7f2;
+      --surface:  #ffffff;
+      --surface2: #f3efe8;
+      --border:   #e8e0d5;
+      --text:     #1e1e1e;
+      --muted:    #7a8499;
+      --gold:     #a0622a;
+      --gold-dim: #c4956a;
+      --teal:     #3a8c83;
+      --rose:     #b85c55;
+      --violet:   #6b5ea8;
+      --shadow:   0 4px 24px rgba(0,0,0,0.07);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      font-family: 'Jost', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 0 5rem;
+    }
+
+    /* ── Hero header ── */
+    .hero {
+      text-align: center;
+      padding: 4rem 2rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(160,98,42,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 600;
+      line-height: 1.1;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero p {
+      font-size: 1rem;
+      color: var(--muted);
+      font-weight: 300;
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ── Main layout ── */
+    .main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 820px) {
+      .main { grid-template-columns: 1fr; }
+    }
+
+    /* ── Input panel ── */
+    .input-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 1.5rem;
+    }
+
+    @media (max-width: 820px) {
+      .input-panel { position: static; }
+    }
+
+    .panel-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+
+    .panel-subtitle {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 300;
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .field {
+      margin-bottom: 1.5rem;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .field-hint {
+      font-size: 0.78rem;
+      color: var(--gold-dim);
+      margin-top: 0.4rem;
+      font-weight: 300;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 3.5rem 0.75rem 1rem;
+      font-family: 'Jost', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -moz-appearance: textfield;
+    }
+
+    .input-wrap input::-webkit-outer-spin-button,
+    .input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .input-wrap input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,169,110,0.12);
+    }
+
+    .input-unit {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.78rem;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    /* Stepper buttons */
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .stepper button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.3rem;
+      width: 44px;
+      height: 48px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .stepper button:hover { background: var(--border); color: var(--gold); }
+
+    .stepper input {
+      flex: 1;
+      background: none;
+      border: none;
+      text-align: center;
+      font-family: 'Jost', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: var(--text);
+      padding: 0;
+      -moz-appearance: textfield;
+    }
+
+    .stepper input:focus { outline: none; }
+    .stepper input::-webkit-outer-spin-button,
+    .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 1.5rem 0;
+    }
+
+    /* Slider */
+    .slider-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .slider-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--gold);
+      min-width: 3rem;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--gold);
+      border: 3px solid var(--surface);
+      box-shadow: 0 0 0 1px var(--gold);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--gold);
+      border: 3px solid var(--surface);
+      cursor: pointer;
+    }
+
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+
+    .calc-btn {
+      width: 100%;
+      padding: 0.9rem;
+      margin-top: 1.5rem;
+      background: var(--gold);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(160,98,42,0.2);
+    }
+
+    .calc-btn:hover {
+      background: #d9b97e;
+      box-shadow: 0 6px 28px rgba(160,98,42,0.28);
+    }
+
+    .calc-btn:active { transform: scale(0.98); }
+
+    /* ── Charts panel ── */
+    .charts-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .empty-state {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 20px;
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .empty-state .icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      opacity: 0.4;
+    }
+
+    .empty-state p {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    /* ── Summary row ── */
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 500px) {
+      .summary-row { grid-template-columns: 1fr; }
+    }
+
+    .summary-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .summary-stat.visible { opacity: 1; transform: translateY(0); }
+
+    .summary-stat .stat-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .summary-stat .stat-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.9rem;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .summary-stat .stat-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+      font-weight: 300;
+    }
+
+    /* ── Chart cards grid ── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 500px) {
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.2s;
+    }
+
+    .chart-card:hover { border-color: var(--gold-dim); }
+    .chart-card.visible { opacity: 1; transform: translateY(0); }
+
+    .chart-card .card-eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .chart-card .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+    }
+
+    .chart-wrap {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin: 0 auto 1.25rem;
+    }
+
+    .chart-center-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .chart-center-pct {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .chart-center-word {
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 0.15rem;
+    }
+
+    .chart-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    .chart-meta strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .legend-row {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Skipped chart */
+    .chart-card.skipped {
+      opacity: 0.35 !important;
+      pointer-events: none;
+    }
+
+    .skipped-msg {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-top: 2rem;
+    }
+  </style>
 </head>
 <body>
-  <!-- Paste your Calconic embed code here -->
-<div class="calconic-calculator"  data-calculatorid="69a56294e69fab002dc09e31"></div>
-    <script>
-          (function() { var qs,j,q,s,d=document, gi=d.getElementById,
-  ce=d.createElement, gt=d.getElementsByTagName,
-  id="calconic_", b="https://cdn.calconic.com/static/js/";
-  if(!gi.call(d,id)) { j=ce.call(d,"script"); j.id=id; j.type="text/javascript"; j.async=true;
-  j.dataset.calconic=true;
-  j.src=b+"calconic.min.js"; q=gt.call(d,"script")[0]; q.parentNode.insertBefore(j,q) }
-})();
-        </script>
 
-  <!-- Paste the pie chart code here -->
-  <div style="width: 100%; max-width: 400px; margin: 20px auto;">
-  <canvas id="timePieChart"></canvas>
+<div class="hero">
+  <div class="hero-eyebrow">Rooted in Time Calculator</div>
+  <h1>how many hours will you get with your children if nothing changes about your current setup?</h1>
+  <p>Enter your child's age and average daily waking hours together to see your time across four meaningful windows.</p>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="main">
+
+  <!-- LEFT: Inputs -->
+  <div class="input-panel">
+    <div class="panel-title">Your Numbers</div>
+
+    <!-- Child's age -->
+    <div class="field">
+      <label>Child's Current Age</label>
+      <div class="stepper">
+        <button onclick="stepAge(-1)" aria-label="Decrease age">−</button>
+        <input type="number" id="childAge" value="3" min="0" max="17" oninput="onAgeInput(this)" />
+        <button onclick="stepAge(1)" aria-label="Increase age">+</button>
+      </div>
+      <div class="field-hint">Whole years only · must be under 18</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Hours slider -->
+    <div class="field">
+      <label>Average Waking Hours Per Day With Your Child</label>
+      <div class="slider-row">
+        <div class="slider-value" id="sliderDisplay">8</div>
+      </div>
+      <input type="range" id="hoursSlider" min="0.5" max="16" step="0.5" value="8"
+             oninput="onSliderInput(this)" />
+      <div class="slider-labels"><span>0.5h</span><span>8h</span><span>16h</span></div>
+    </div>
+
+    <button class="calc-btn" onclick="calculate()">Calculate My Time →</button>
+  </div>
+
+  <!-- RIGHT: Charts -->
+  <div class="charts-panel" id="chartsPanel">
+    <div class="empty-state">
+      <div class="icon">◷</div>
+      <p>Enter your child's age and daily hours together,<br>then click <strong>Calculate My Time</strong>.</p>
+    </div>
+  </div>
+
+</div>
+
 <script>
-  // Wait for the DOM to load
-  document.addEventListener('DOMContentLoaded', function() {
-    var ctx = document.getElementById('timePieChart').getContext('2d');
-    var myChart = new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: ['Pre-School Hours (Act Now!)', 'School to 18 Hours'],
-        datasets: [{
-          data: [0, 0],
-          backgroundColor: ['#FF6384', '#36A2EB'], // Red for urgency on pre-school, blue for later
-          hoverOffset: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'top' },
-          title: { display: true, text: 'Your Precious Time Breakdown' },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                var label = context.label || '';
-                var value = context.parsed || 0;
-                var total = context.dataset.data.reduce((a, b) => a + b, 0);
-                var percentage = total > 0 ? Math.round((value / total) * 100) + '%' : '0%';
-                return label + ': ' + value.toLocaleString() + ' hours (' + percentage + ')';
+  // ── Stepper & slider interactions ──────────────────────────────────
+
+  function stepAge(delta) {
+    const el = document.getElementById('childAge');
+    let v = parseInt(el.value) || 0;
+    v = Math.min(17, Math.max(0, v + delta));
+    el.value = v;
+  }
+
+  function onAgeInput(el) {
+    let v = parseInt(el.value);
+    if (isNaN(v)) return;
+    el.value = Math.min(17, Math.max(0, v));
+  }
+
+  function onSliderInput(el) {
+    document.getElementById('sliderDisplay').textContent = parseFloat(el.value);
+  }
+
+  // ── Chart color palette ─────────────────────────────────────────────
+  const PALETTE = [
+    { fill: '#c17c5c', dim: 'rgba(193,124,92,0.12)',  label: 'terracotta' },
+    { fill: '#6b8f71', dim: 'rgba(107,143,113,0.12)', label: 'sage'       },
+    { fill: '#7c6b8f', dim: 'rgba(124,107,143,0.12)', label: 'plum'       },
+    { fill: '#5c7c8f', dim: 'rgba(92,124,143,0.12)',  label: 'steel'      },
+  ];
+
+  const CHART_DEFS = [
+    {
+      eyebrow: 'Formula 1',
+      title: 'This Week',
+      denomLabel: '112 hrs',
+      getDenom: ()        => 112,
+      getValue: (h, age)  => h * 7,
+      skippedIf: ()       => false,
+      skippedMsg: '',
+    },
+    {
+      eyebrow: 'Formula 2',
+      title: 'This Year',
+      denomLabel: '5,824 hrs',
+      getDenom: ()        => 5824,
+      getValue: (h, age)  => h * 365,
+      skippedIf: ()       => false,
+      skippedMsg: '',
+    },
+    {
+      eyebrow: 'Formula 3',
+      title: 'Until School',
+      denomLabel: 'hrs until age 5',
+      getDenom: (age)     => (5 - age) * 365 * 16,
+      getValue: (h, age)  => h * 365 * (5 - age),
+      skippedIf: (age)    => age >= 5,
+      skippedMsg: 'Your child has already reached school age.',
+    },
+    {
+      eyebrow: 'Formula 4',
+      title: 'Until Adulthood',
+      denomLabel: 'hrs until age 18',
+      getDenom: (age)     => (18 - age) * 365 * 16,
+      getValue: (h, age)  => h * 365 * (18 - age),
+      skippedIf: (age)    => age >= 18,
+      skippedMsg: 'Your child has already reached adulthood.',
+    },
+  ];
+
+  let chartInstances = [];
+
+  function calculate() {
+    const age   = parseInt(document.getElementById('childAge').value);
+    const hours = parseFloat(document.getElementById('hoursSlider').value);
+
+    if (isNaN(age) || age < 0 || age > 17) {
+      alert('Please enter a valid child age between 0 and 17.');
+      return;
+    }
+    if (isNaN(hours) || hours <= 0) {
+      alert('Please select daily hours using the slider.');
+      return;
+    }
+
+    // Destroy old charts
+    chartInstances.forEach(c => c.destroy());
+    chartInstances = [];
+
+    const panel = document.getElementById('chartsPanel');
+    panel.innerHTML = '';
+
+    // ── Summary stats ────────────────────────────────────────────────
+    const weeklyHours  = (hours * 7).toFixed(1);
+    const annualHours  = Math.round(hours * 365).toLocaleString();
+    const Hourstoschool = Math.round(hours * 365 * (5 - age)).toLocaleString();
+    const Hourstoadult = Math.round(hours * 365 * (18 - age)).toLocaleString();
+    const Posshourstoschool = Math.round(5824 * (5 - age)).toLocaleString();
+    const Posshourstoadult = Math.round(5824 * (18 - age)).toLocaleString();
+    const pctOfWaking  = ((hours / 16) * 100).toFixed(0);
+
+    const summaryEl = document.createElement('div');
+    summaryEl.className = 'summary-row';
+    summaryEl.innerHTML = `
+      <div class="summary-stat">
+        <div class="stat-label">Daily hours together</div>
+        <div class="stat-value">${hours}h</div>
+        <div class="stat-sub">out of 16 waking hrs/day</div>
+      </div>
+      <div class="summary-stat">
+        <div class="stat-label">Annual hours together</div>
+        <div class="stat-value">${annualHours}</div>
+        <div class="stat-sub">out of 5,824 waking hrs/year</div>
+      </div>
+      <div class="summary-stat">
+        <div class="stat-label">Hours together until full-time school</div>
+        <div class="stat-value">${Hourstoschool}</div>
+        <div class="stat-sub">out of ${Posshourstoschool} waking hrs before full-time school</div>
+      </div>
+      <div class="summary-stat">
+        <div class="stat-label">Hours together until adulthood</div>
+        <div class="stat-value">${Hourstoadult}</div>
+        <div class="stat-sub">out of ${Posshourstoadult} waking hrs before adulthood</div>
+      </div>
+    `;
+    panel.appendChild(summaryEl);
+
+    // Animate summary stats
+    setTimeout(() => {
+      summaryEl.querySelectorAll('.summary-stat').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), i * 80);
+      });
+    }, 30);
+
+    // ── Chart cards ─────────────────────────────────────────────────
+    const grid = document.createElement('div');
+    grid.className = 'charts-grid';
+    panel.appendChild(grid);
+
+    CHART_DEFS.forEach((def, i) => {
+      const color   = PALETTE[i];
+      const skipped = def.skippedIf(age);
+      const total   = def.getDenom(age);
+      const val     = def.getValue(hours, age);
+      const withKids = Math.min(val, total);
+      const without  = Math.max(0, total - withKids);
+      const pct      = total > 0 ? ((withKids / total) * 100).toFixed(1) : 0;
+      const denomStr = total > 0 ? total.toLocaleString() : '—';
+
+      const card = document.createElement('div');
+      card.className = 'chart-card' + (skipped ? ' skipped' : '');
+
+      if (skipped) {
+        card.innerHTML = `
+          <div class="card-eyebrow">${def.eyebrow}</div>
+          <div class="card-title">${def.title}</div>
+          <div class="skipped-msg">${def.skippedMsg}</div>
+        `;
+      } else {
+        card.innerHTML = `
+          <div class="card-eyebrow">${def.eyebrow}</div>
+          <div class="card-title">${def.title}</div>
+          <div class="chart-wrap">
+            <canvas id="chart${i}" width="150" height="150"></canvas>
+            <div class="chart-center-label">
+              <span class="chart-center-pct" style="color:${color.fill}">${pct}%</span>
+              <span class="chart-center-word">together</span>
+            </div>
+          </div>
+          <div class="chart-meta">
+            <strong>${Math.round(withKids).toLocaleString()}h</strong> with your child<br>
+            out of <strong>${denomStr}h</strong> total waking hours
+          </div>
+          <div class="legend-row">
+            <div class="legend-item">
+              <div class="legend-dot" style="background:${color.fill}"></div>
+              With child
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#ede8e1; border: 1px solid #c8bfb4"></div>
+              Other time
+            </div>
+          </div>
+        `;
+      }
+
+      grid.appendChild(card);
+
+      // Staggered reveal
+      setTimeout(() => {
+        requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add('visible')));
+      }, 100 + i * 100);
+
+      // Draw chart
+      if (!skipped && total > 0) {
+        setTimeout(() => {
+          const ctx = document.getElementById(`chart${i}`).getContext('2d');
+          const instance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: ['With Child', 'Other Waking Hours'],
+              datasets: [{
+                data: [withKids, without],
+                backgroundColor: [color.fill, '#ede8e1'],
+                borderWidth: 0,
+                hoverOffset: 5,
+              }]
+            },
+            options: {
+              cutout: '72%',
+              animation: { duration: 800, easing: 'easeOutQuart' },
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  backgroundColor: '#ffffff',
+                  borderColor: '#e8e0d5',
+                  borderWidth: 1,
+                  titleColor: '#1e1e1e',
+                  bodyColor: '#7a8499',
+                  callbacks: {
+                    label: (ctx) => {
+                      const hrs = Math.round(ctx.parsed).toLocaleString();
+                      const p   = ((ctx.parsed / total) * 100).toFixed(1);
+                      return ` ${ctx.label}: ${hrs}h (${p}%)`;
+                    }
+                  }
+                }
               }
             }
-          }
-        }
+          });
+          chartInstances.push(instance);
+        }, 150 + i * 100);
       }
     });
-
-    var lastPre = 0;
-    var lastTotal = 0;
-
-    setInterval(function() {
-      // Adjust selectors based on your inspection; element IDs are from builder (without #)
-      var preSchoolEl = document.querySelector('.calconic-calculator [data-element-id="3"] .calconic-formula-value');
-      var totalEl = document.querySelector('.calconic-calculator [data-element-id="4"] .calconic-formula-value');
-
-      var pre = preSchoolEl ? parseFloat(preSchoolEl.innerText.replace(/[^0-9.-]+/g, '')) || 0 : 0;
-      var total = totalEl ? parseFloat(totalEl.innerText.replace(/[^0-9.-]+/g, '')) || 0 : 0;
-      var postSchool = total - pre;
-
-      if (pre !== lastPre || total !== lastTotal) {
-        myChart.data.datasets[0].data = [pre, postSchool];
-        myChart.data.labels[0] = 'Pre-School Hours (Only ' + (total > 0 ? Math.round((pre / total) * 100) : 0) + '% of Total!)';
-        myChart.update();
-        lastPre = pre;
-        lastTotal = total;
-      }
-    }, 500); // Check every 0.5 seconds for changes
-  });
+  }
 </script>
 
-  <!-- Optional: Add any custom styles or text -->
 </body>
 </html>
