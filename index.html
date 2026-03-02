@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time With Kids Calculator</title>
+</head>
+<body>
+  <!-- Paste your Calconic embed code here -->
+  <div class="calconic-calculator"  data-calculatorid="69a56294e69fab002dc09e31"></div>
+    <script>
+          (function() { var qs,j,q,s,d=document, gi=d.getElementById,
+  ce=d.createElement, gt=d.getElementsByTagName,
+  id="calconic_", b="https://cdn.calconic.com/static/js/";
+  if(!gi.call(d,id)) { j=ce.call(d,"script"); j.id=id; j.type="text/javascript"; j.async=true;
+  j.dataset.calconic=true;
+  j.src=b+"calconic.min.js"; q=gt.call(d,"script")[0]; q.parentNode.insertBefore(j,q) }
+})();
+        </script>
+
+  <!-- Paste the pie chart code here -->
+  <div style="width: 100%; max-width: 400px; margin: 20px auto;">
+  <canvas id="timePieChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Wait for the DOM to load
+  document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('timePieChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Pre-School Hours (Act Now!)', 'School to 18 Hours'],
+        datasets: [{
+          data: [0, 0],
+          backgroundColor: ['#FF6384', '#36A2EB'], // Red for urgency on pre-school, blue for later
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+          title: { display: true, text: 'Your Precious Time Breakdown' },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                var label = context.label || '';
+                var value = context.parsed || 0;
+                var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                var percentage = total > 0 ? Math.round((value / total) * 100) + '%' : '0%';
+                return label + ': ' + value.toLocaleString() + ' hours (' + percentage + ')';
+              }
+            }
+          }
+        }
+      }
+    });
+
+    var lastPre = 0;
+    var lastTotal = 0;
+
+    setInterval(function() {
+      // Adjust selectors based on your inspection; element IDs are from builder (without #)
+      var preSchoolEl = document.querySelector('.calconic-calculator [data-element-id="3"] .calconic-formula-value');
+      var totalEl = document.querySelector('.calconic-calculator [data-element-id="4"] .calconic-formula-value');
+
+      var pre = preSchoolEl ? parseFloat(preSchoolEl.innerText.replace(/[^0-9.-]+/g, '')) || 0 : 0;
+      var total = totalEl ? parseFloat(totalEl.innerText.replace(/[^0-9.-]+/g, '')) || 0 : 0;
+      var postSchool = total - pre;
+
+      if (pre !== lastPre || total !== lastTotal) {
+        myChart.data.datasets[0].data = [pre, postSchool];
+        myChart.data.labels[0] = 'Pre-School Hours (Only ' + (total > 0 ? Math.round((pre / total) * 100) : 0) + '% of Total!)';
+        myChart.update();
+        lastPre = pre;
+        lastTotal = total;
+      }
+    }, 500); // Check every 0.5 seconds for changes
+  });
+</script>
+
+  <!-- Optional: Add any custom styles or text -->
+</body>
+</html>
