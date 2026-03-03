@@ -567,6 +567,7 @@
     panel.innerHTML = '';
 
     // ── Summary stats ─────────────────────────────────────────────
+    const weeklyHours = Math.round(hours * 7).toLocateString();
     const annualHours       = Math.round(hours * 365).toLocaleString();
     const hoursToSchool     = Math.round(hours * 365 * Math.max(0, 5 - age)).toLocaleString();
     const hoursToAdult      = Math.round(hours * 365 * Math.max(0, 18 - age)).toLocaleString();
@@ -577,9 +578,9 @@
     summaryEl.className = 'summary-row';
     summaryEl.innerHTML = `
       <div class="summary-stat">
-        <div class="stat-label">Hours together each day</div>
-        <div class="stat-value">${hours}h</div>
-        <div class="stat-sub">out of 16 waking hrs/day</div>
+        <div class="stat-label">Hours together each week</div>
+        <div class="stat-value">${weeklyHours}h</div>
+        <div class="stat-sub">out of 112 waking hrs/week</div>
       </div>
       <div class="summary-stat">
         <div class="stat-label">Hours together each year</div>
