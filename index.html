@@ -508,7 +508,7 @@
   <div class="charts-panel" id="chartsPanel">
     <div class="empty-state">
       <div class="icon">◷</div>
-      <p>Enter your child's age and daily hours together,<br>then click <strong>Calculate My Time</strong>.</p>
+      <p>Enter your child's age and number of waking hours together each day,<br>then click <strong>Calculate My Time</strong>.</p>
     </div>
   </div>
 
@@ -536,8 +536,8 @@
 
   const CHART_DEFS = [
     {
-      eyebrow: 'The Reality',
-      title: 'Percent of Total Waking Hours Together',
+      eyebrow: 'Percent of Total Waking Hours Together',
+      title: 'Are you comfortable with these numbers?',
       getDenom: ()       => 112,
       getValue: (h)      => h * 7,
       skippedIf: ()      => false,
@@ -577,12 +577,12 @@
     summaryEl.className = 'summary-row';
     summaryEl.innerHTML = `
       <div class="summary-stat">
-        <div class="stat-label">Daily hours together</div>
+        <div class="stat-label">Hours together each day</div>
         <div class="stat-value">${hours}h</div>
         <div class="stat-sub">out of 16 waking hrs/day</div>
       </div>
       <div class="summary-stat">
-        <div class="stat-label">Annual hours together</div>
+        <div class="stat-label">Hours together each year</div>
         <div class="stat-value">${annualHours}</div>
         <div class="stat-sub">out of 5,824 waking hrs/year</div>
       </div>
