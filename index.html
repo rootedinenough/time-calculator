@@ -593,40 +593,13 @@
 
   const CHART_DEFS = [
     {
-      eyebrow: 'Formula 1',
+      eyebrow: 'Percent of Total Hours Together',
       title: 'This Week',
       denomLabel: '112 hrs',
       getDenom: ()        => 112,
       getValue: (h, age)  => h * 7,
       skippedIf: ()       => false,
       skippedMsg: '',
-    },
-    {
-      eyebrow: 'Formula 2',
-      title: 'This Year',
-      denomLabel: '5,824 hrs',
-      getDenom: ()        => 5824,
-      getValue: (h, age)  => h * 365,
-      skippedIf: ()       => false,
-      skippedMsg: '',
-    },
-    {
-      eyebrow: 'Formula 3',
-      title: 'Until School',
-      denomLabel: 'hrs until age 5',
-      getDenom: (age)     => (5 - age) * 365 * 16,
-      getValue: (h, age)  => h * 365 * (5 - age),
-      skippedIf: (age)    => age >= 5,
-      skippedMsg: 'Your child has already reached school age.',
-    },
-    {
-      eyebrow: 'Formula 4',
-      title: 'Until Adulthood',
-      denomLabel: 'hrs until age 18',
-      getDenom: (age)     => (18 - age) * 365 * 16,
-      getValue: (h, age)  => h * 365 * (18 - age),
-      skippedIf: (age)    => age >= 18,
-      skippedMsg: 'Your child has already reached adulthood.',
     },
   ];
 
@@ -740,7 +713,7 @@
             </div>
             <div class="legend-item">
               <div class="legend-dot" style="background:#ede8e1; border: 1px solid #c8bfb4"></div>
-              Other time
+              Without child
             </div>
           </div>
         `;
@@ -760,7 +733,7 @@
           const instance = new Chart(ctx, {
             type: 'doughnut',
             data: {
-              labels: ['With Child', 'Other Waking Hours'],
+              labels: ['With Child', 'Without Child'],
               datasets: [{
                 data: [withKids, without],
                 backgroundColor: [color.fill, '#ede8e1'],
