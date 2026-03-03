@@ -537,7 +537,6 @@
   const CHART_DEFS = [
     {
       eyebrow: 'Percent of Total Waking Hours Together',
-      title: 'Are you comfortable with these numbers?',
       getDenom: ()       => 112,
       getValue: (h)      => h * 7,
       skippedIf: ()      => false,
@@ -632,7 +631,6 @@
             <canvas id="chart${i}" width="160" height="160"></canvas>
             <div class="chart-center-label">
               <span class="chart-center-pct" style="color:${color}">${pct}%</span>
-              <span class="chart-center-word">together</span>
             </div>
           </div>
           <div class="chart-info">
